@@ -14,12 +14,12 @@ export default defineConfig(
       parser: vueParser,
       parserOptions: {
         ecmaFeatures: {
-          jsx: true
+          jsx: true,
         },
         extraFileExtensions: ['.vue'],
-        parser: tseslint.parser
-      }
-    }
+        parser: tseslint.parser,
+      },
+    },
   },
   {
     files: ['**/*.{ts,mts,tsx,vue}'],
@@ -30,11 +30,20 @@ export default defineConfig(
         'error',
         {
           script: {
-            lang: 'ts'
-          }
-        }
-      ]
-    }
+            lang: 'ts',
+          },
+        },
+      ],
+    },
   },
-  eslintConfigPrettier
+  eslintConfigPrettier,
+  {
+    'prettier/prettier': [
+      'error',
+      {
+        singleQuote: true,
+        parser: 'flow',
+      },
+    ],
+  },
 )

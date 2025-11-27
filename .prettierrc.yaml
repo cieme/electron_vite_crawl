@@ -1,4 +1,9 @@
 singleQuote: true
 semi: false
+tabWidth: 2
 printWidth: 100
-trailingComma: none
+trailingComma: 'all' # "all" | "es5" | "none"
+jsxBracketSameLine: false
+jsxSingleQuote: false
+arrowParens: 'always'
+endOfLine: 'lf'

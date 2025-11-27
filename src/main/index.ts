@@ -13,15 +13,17 @@ function createWindow(): void {
     show: false, // 初始不显示
     autoHideMenuBar: false, // 自动隐藏菜单栏
     titleBarStyle: 'hidden',
-    frame: false,
+    frame: true,
     ...(process.platform === 'linux' ? { icon } : {}), // Linux 系统设置图标
     webPreferences: {
       // 网页功能设置
       preload: join(__dirname, '../preload/index.js'), // 预加载脚本
-      sandbox: false // 关闭沙盒模式
-    }
+      sandbox: false, // 关闭沙盒模式
+      webSecurity: false, // 关闭 web 安全限制
+      allowRunningInsecureContent: true, // 允许运行不安全内容
+    },
   })
-
+  // createSecondWindow(mainWindow)
   // 窗口准备就绪时显示
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -77,3 +79,32 @@ app.on('window-all-closed', () => {
 
 // 在此文件中，您可以包含应用程序主进程的其余特定代码
 // 您也可以将它们放在单独的文件中并在此处引入
+// 在 main.js 或主进程中
+
+// function createSecondWindow(mainWindow: BrowserWindow): BrowserWindow | null {
+//   let secondWindow: BrowserWindow | null = new BrowserWindow({
+//     width: 800,
+//     height: 600,
+//     parent: mainWindow, // 可选：设置为子窗口
+//     modal: true, // 可选：设置为模态窗口
+//     webPreferences: {
+//       preload: join(__dirname, '../preload/index.js'),
+//       sandbox: false
+//     }
+//   })
+
+//   secondWindow.loadURL('https://cn.bing.com/')
+
+//   // // 加载页面
+//   // if (process.env.VITE_DEV_SERVER_URL) {
+//   //   secondWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '/second.html')
+//   // } else {
+//   //   secondWindow.loadFile('dist/second.html')
+//   // }
+
+//   // 窗口关闭时清理引用
+//   secondWindow.on('closed', () => {
+//     secondWindow = null
+//   })
+//   return secondWindow
+// }
