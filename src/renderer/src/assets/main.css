@@ -2,11 +2,9 @@
 
 body {
   display: flex;
-  align-items: center;
   justify-content: center;
+  flex-direction: column;
   overflow: hidden;
-  background-image: url('./wavy-lines.svg');
-  background-size: cover;
   user-select: none;
 }
 
@@ -26,13 +24,6 @@ code {
   font-size: 85%;
 }
 
-#app {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  margin-bottom: 80px;
-}
 
 .logo {
   margin-bottom: 20px;
@@ -168,4 +159,8 @@ code {
   .actions {
     display: none;
   }
+}
+#browser-webview{
+  flex: 1;
+  width: 100%;
 }

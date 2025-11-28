@@ -1,5 +1,5 @@
 // 导入 Electron 模块和工具
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -12,17 +12,20 @@ function createWindow(): void {
     height: 670, // 窗口高度
     show: false, // 初始不显示
     autoHideMenuBar: false, // 自动隐藏菜单栏
-    titleBarStyle: 'hidden',
-    frame: true,
+    titleBarStyle: 'hiddenInset', // default
+    frame: true, // 显示窗口边框和标题栏 frame: true, // 显示窗口边框和标题栏
     ...(process.platform === 'linux' ? { icon } : {}), // Linux 系统设置图标
     webPreferences: {
       // 网页功能设置
       preload: join(__dirname, '../preload/index.js'), // 预加载脚本
       sandbox: false, // 关闭沙盒模式
       webSecurity: false, // 关闭 web 安全限制
+      webviewTag: true, // 必须启用这个
       allowRunningInsecureContent: true, // 允许运行不安全内容
     },
   })
+  // 隐藏应用程序菜单
+  Menu.setApplicationMenu(null)
   // createSecondWindow(mainWindow)
   // 窗口准备就绪时显示
   mainWindow.on('ready-to-show', () => {
@@ -47,6 +50,7 @@ function createWindow(): void {
 // 当 Electron 完成初始化并准备创建浏览器窗口时调用此方法
 // 有些 API 只能在此事件发生后使用
 app.whenReady().then(() => {
+  app.commandLine.appendSwitch('lang', 'zh-CN')
   // 为 Windows 设置应用用户模型 ID
   electronApp.setAppUserModelId('com.electron')
 
@@ -81,30 +85,30 @@ app.on('window-all-closed', () => {
 // 您也可以将它们放在单独的文件中并在此处引入
 // 在 main.js 或主进程中
 
-// function createSecondWindow(mainWindow: BrowserWindow): BrowserWindow | null {
-//   let secondWindow: BrowserWindow | null = new BrowserWindow({
-//     width: 800,
-//     height: 600,
-//     parent: mainWindow, // 可选：设置为子窗口
-//     modal: true, // 可选：设置为模态窗口
-//     webPreferences: {
-//       preload: join(__dirname, '../preload/index.js'),
-//       sandbox: false
-//     }
-//   })
+function createSecondWindow(mainWindow: BrowserWindow): BrowserWindow | null {
+  let secondWindow: BrowserWindow | null = new BrowserWindow({
+    width: 800,
+    height: 600,
+    parent: mainWindow, // 可选：设置为子窗口
+    modal: false, // 可选：设置为模态窗口
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      sandbox: false,
+    },
+  })
 
-//   secondWindow.loadURL('https://cn.bing.com/')
+  secondWindow.loadURL('https://cn.bing.com/')
 
-//   // // 加载页面
-//   // if (process.env.VITE_DEV_SERVER_URL) {
-//   //   secondWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '/second.html')
-//   // } else {
-//   //   secondWindow.loadFile('dist/second.html')
-//   // }
+  // // 加载页面
+  // if (process.env.VITE_DEV_SERVER_URL) {
+  //   secondWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '/second.html')
+  // } else {
+  //   secondWindow.loadFile('dist/second.html')
+  // }
 
-//   // 窗口关闭时清理引用
-//   secondWindow.on('closed', () => {
-//     secondWindow = null
-//   })
-//   return secondWindow
-// }
+  // 窗口关闭时清理引用
+  secondWindow.on('closed', () => {
+    secondWindow = null
+  })
+  return secondWindow
+}
