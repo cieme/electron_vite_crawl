@@ -85,30 +85,30 @@ app.on('window-all-closed', () => {
 // 您也可以将它们放在单独的文件中并在此处引入
 // 在 main.js 或主进程中
 
-function createSecondWindow(mainWindow: BrowserWindow): BrowserWindow | null {
-  let secondWindow: BrowserWindow | null = new BrowserWindow({
-    width: 800,
-    height: 600,
-    parent: mainWindow, // 可选：设置为子窗口
-    modal: false, // 可选：设置为模态窗口
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
-    },
-  })
+// function createSecondWindow(mainWindow: BrowserWindow): BrowserWindow | null {
+//   let secondWindow: BrowserWindow | null = new BrowserWindow({
+//     width: 800,
+//     height: 600,
+//     parent: mainWindow, // 可选：设置为子窗口
+//     modal: false, // 可选：设置为模态窗口
+//     webPreferences: {
+//       preload: join(__dirname, '../preload/index.js'),
+//       sandbox: false,
+//     },
+//   })
 
-  secondWindow.loadURL('https://cn.bing.com/')
+//   secondWindow.loadURL('https://cn.bing.com/')
 
-  // // 加载页面
-  // if (process.env.VITE_DEV_SERVER_URL) {
-  //   secondWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '/second.html')
-  // } else {
-  //   secondWindow.loadFile('dist/second.html')
-  // }
+//   // // 加载页面
+//   // if (process.env.VITE_DEV_SERVER_URL) {
+//   //   secondWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '/second.html')
+//   // } else {
+//   //   secondWindow.loadFile('dist/second.html')
+//   // }
 
-  // 窗口关闭时清理引用
-  secondWindow.on('closed', () => {
-    secondWindow = null
-  })
-  return secondWindow
-}
+//   // 窗口关闭时清理引用
+//   secondWindow.on('closed', () => {
+//     secondWindow = null
+//   })
+//   return secondWindow
+// }
