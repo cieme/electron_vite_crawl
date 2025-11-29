@@ -1,5 +1,5 @@
 // 导入 Electron 模块和工具
-import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Menu, BrowserView } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -24,6 +24,8 @@ function createWindow(): void {
       allowRunningInsecureContent: true, // 允许运行不安全内容
     },
   })
+  mainWindow.webContents.openDevTools()
+  createBrowserView(mainWindow)
   // 隐藏应用程序菜单
   Menu.setApplicationMenu(null)
   // createSecondWindow(mainWindow)
@@ -81,6 +83,13 @@ app.on('window-all-closed', () => {
   }
 })
 
+function createBrowserView(mainWindow) {
+  const view = new BrowserView()
+  mainWindow.setBrowserView(view)
+  view.setBounds({ x: 0, y: 50, width: 900, height: 670 - 50 })
+  view.webContents.loadURL('https://cn.bing.com/')
+  view.setAutoResize({ width: true, height: true })
+}
 // 在此文件中，您可以包含应用程序主进程的其余特定代码
 // 您也可以将它们放在单独的文件中并在此处引入
 // 在 main.js 或主进程中
