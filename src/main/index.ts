@@ -22,6 +22,8 @@ function createWindow(): void {
       webSecurity: false, // 关闭 web 安全限制
       webviewTag: true, // 必须启用这个
       allowRunningInsecureContent: true, // 允许运行不安全内容
+      nodeIntegration: true,
+      contextIsolation: false,
     },
   })
   mainWindow.webContents.openDevTools()

@@ -1,8 +1,16 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import path from 'path'
 
 // Custom APIs for renderer
-const api = {}
+const api = {
+  preload: path.join(__dirname, './preload.js'),
+  onWebviewMsg(callback) {
+    ipcRenderer.on('webview-data', (event, data) => {
+      callback(data)
+    })
+  },
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
@@ -12,6 +20,8 @@ const api = {}
  * 启用时：使用 contextBridge 安全地暴露 API
  * 未启用时：直接挂载到 window 对象
  * */
+console.log('xxxxx')
+console.log(process.contextIsolated)
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
