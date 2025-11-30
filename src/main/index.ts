@@ -12,7 +12,7 @@ function createWindow(): void {
     height: 670, // 窗口高度
     show: false, // 初始不显示
     autoHideMenuBar: false, // 自动隐藏菜单栏
-    titleBarStyle: 'hiddenInset', // default
+    titleBarStyle: 'default', // default
     frame: true, // 显示窗口边框和标题栏 frame: true, // 显示窗口边框和标题栏
     ...(process.platform === 'linux' ? { icon } : {}), // Linux 系统设置图标
     webPreferences: {
@@ -25,7 +25,7 @@ function createWindow(): void {
     },
   })
   mainWindow.webContents.openDevTools()
-  createBrowserView(mainWindow)
+  // createBrowserView(mainWindow)
   // 隐藏应用程序菜单
   Menu.setApplicationMenu(null)
   // createSecondWindow(mainWindow)
@@ -83,13 +83,13 @@ app.on('window-all-closed', () => {
   }
 })
 
-function createBrowserView(mainWindow) {
-  const view = new BrowserView()
-  mainWindow.setBrowserView(view)
-  view.setBounds({ x: 0, y: 50, width: 900, height: 670 - 50 })
-  view.webContents.loadURL('https://cn.bing.com/')
-  view.setAutoResize({ width: true, height: true })
-}
+// function createBrowserView(mainWindow) {
+//   const view = new BrowserView()
+//   mainWindow.setBrowserView(view)
+//   view.setBounds({ x: 0, y: 50, width: 900, height: 670 - 50 })
+//   view.webContents.loadURL('https://cn.bing.com/')
+//   view.setAutoResize({ width: true, height: true })
+// }
 // 在此文件中，您可以包含应用程序主进程的其余特定代码
 // 您也可以将它们放在单独的文件中并在此处引入
 // 在 main.js 或主进程中
