@@ -12,6 +12,15 @@ export default defineConfig({
   },
   preload: {
     plugins: [externalizeDepsPlugin()],
+    build: {
+      rollupOptions: {
+        input: {
+          // 配置多个 preload 入口
+          index: resolve(__dirname, 'src/preload/index.ts'),
+          preload: resolve(__dirname, 'src/preload/preload.ts'),
+        },
+      },
+    },
   },
   renderer: {
     resolve: {

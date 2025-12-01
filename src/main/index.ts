@@ -4,10 +4,11 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
+let mainWindow: BrowserWindow | null = null
 // 创建浏览器窗口函数
 function createWindow(): void {
   // 创建浏览器窗口
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900, // 窗口宽度
     height: 670, // 窗口高度
     show: false, // 初始不显示
@@ -33,7 +34,7 @@ function createWindow(): void {
   // createSecondWindow(mainWindow)
   // 窗口准备就绪时显示
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+    mainWindow?.show()
   })
 
   // 处理新窗口打开请求
@@ -66,6 +67,10 @@ app.whenReady().then(() => {
 
   // IPC 通信测试
   ipcMain.on('ping', () => console.log('pong'))
+  ipcMain.on('webview-data', (event, data) => {
+    console.log('主线程收到webview-data')
+    mainWindow!.webContents.send('webview-data', data)
+  })
 
   createWindow()
 
