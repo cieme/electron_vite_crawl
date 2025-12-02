@@ -2,8 +2,11 @@
 import { onMounted, useTemplateRef, ref, toRaw } from 'vue'
 import { RouterView } from 'vue-router'
 import { zhCN, dateZhCN } from 'naive-ui'
+import Layout from '@renderer/components/layout/index.vue'
+import { nextTick } from 'process'
 const url = ref(
-  'https://item.jd.com/10155301055086.html?extension_id=eyJhZCI6IjI2OCIsImNoIjoiMiIsInNrdSI6IjEwMTU1MzAxMDU1MDg2IiwidHMiOiIxNzY0NTExOTUxIiwidW5pcWlkIjoie1wiY2xpY2tfaWRcIjpcImUyZDcxZTM3LTM2YjYtNGFmZS04ODU5LTJjNmYxMGMwYTMyM1wiLFwibWF0ZXJpYWxfaWRcIjpcIjYxNTMzNDE4OTE2XCIsXCJwb3NfaWRcIjpcIjI2OFwiLFwic2lkXCI6XCJmZDhmZjk5Ny0wMTJhLTQyMTAtYThlMi05NGZmZjA1NjdiMmJcIn0ifQ==&jd_pop=e2d71e37-36b6-4afe-8859-2c6f10c0a323&abt=0',
+  'http://www.ccgp-liaoning.gov.cn/login',
+  // 'https://item.jd.com/10155301055086.html?extension_id=eyJhZCI6IjI2OCIsImNoIjoiMiIsInNrdSI6IjEwMTU1MzAxMDU1MDg2IiwidHMiOiIxNzY0NTExOTUxIiwidW5pcWlkIjoie1wiY2xpY2tfaWRcIjpcImUyZDcxZTM3LTM2YjYtNGFmZS04ODU5LTJjNmYxMGMwYTMyM1wiLFwibWF0ZXJpYWxfaWRcIjpcIjYxNTMzNDE4OTE2XCIsXCJwb3NfaWRcIjpcIjI2OFwiLFwic2lkXCI6XCJmZDhmZjk5Ny0wMTJhLTQyMTAtYThlMi05NGZmZjA1NjdiMmJcIn0ifQ==&jd_pop=e2d71e37-36b6-4afe-8859-2c6f10c0a323&abt=0',
 )
 const preload = `file://${window.api.preload}`
 
@@ -12,7 +15,8 @@ const preload = `file://${window.api.preload}`
 // ]
 let webview: Electron.WebviewTag | null = null
 onMounted(() => {
-  webview = document.getElementById('browser-webview') as Electron.WebviewTag
+  webview = document.querySelector('#browser-webview') as Electron.WebviewTag
+  addMountedEvent()
   window.electron.ipcRenderer.on('webview-data', (event, data) => {
     console.log(event, data)
   })
@@ -28,7 +32,12 @@ const themeOverrides = {
     fontWeightStrong: '600',
   },
 }
-
+function addMountedEvent() {
+  webview!.addEventListener('did-frame-navigate', (event) => {
+    console.log(event)
+    url.value = event.url
+  })
+}
 function addEvent() {
   webview!.addEventListener('dom-ready', () => {
     console.log('dom-ready')
@@ -41,21 +50,40 @@ function addEvent() {
   })
 }
 function removeEvent() {}
+
+function onBack() {
+  webview!.goBack()
+}
+function onForward() {
+  webview!.goForward()
+}
 </script>
 
 <template>
-  <NConfigProvider :locale="zhCN" :date-locale="dateZhCN" :theme-overrides="themeOverrides">
-    <div class="flex">
+  <div class="w-screen h-screen flex flex-col">
+    <NConfigProvider
+      :locale="zhCN"
+      :date-locale="dateZhCN"
+      :theme-overrides="themeOverrides"
+    >
+      <Layout
+        v-model:url="url"
+        :webview="webview"
+        @on-back="onBack"
+        @on-forward="onForward"
+        @on-enter="toggleWebview"
+      />
       <RouterView />
-      <NInput type="text" v-model:value="url" @keyup.enter="toggleWebview" />
-    </div>
-
-    <!--     preload="file:///Users/cieme/study/夏龙海/Crawl/out/preload/preload.js" -->
-  </NConfigProvider>
-  <webview
-    id="browser-webview"
-    src="https://www.bing.com"
-    :preload="preload"
-    autosize="on"
-  ></webview>
+    </NConfigProvider>
+    <webview
+      class="flex-1"
+      id="browser-webview"
+      src="https://www.bing.com"
+      :preload="preload"
+      autosize="on"
+      allowpopups
+      allowpresentation
+      allow="autoplay; camera; microphone; display-capture; fullscreen"
+    ></webview>
+  </div>
 </template>
