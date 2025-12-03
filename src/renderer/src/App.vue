@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, toRaw } from 'vue'
+import { onMounted, reactive, ref, toRaw } from 'vue'
 import { RouterView } from 'vue-router'
-import { zhCN, dateZhCN } from 'naive-ui'
+import { zhCN, dateZhCN, type GlobalThemeOverrides } from 'naive-ui'
 import Layout from '@renderer/components/layout/index.vue'
 
 const url = ref(
@@ -9,17 +9,15 @@ const url = ref(
   // 'https://item.jd.com/10155301055086.html?extension_id=eyJhZCI6IjI2OCIsImNoIjoiMiIsInNrdSI6IjEwMTU1MzAxMDU1MDg2IiwidHMiOiIxNzY0NTExOTUxIiwidW5pcWlkIjoie1wiY2xpY2tfaWRcIjpcImUyZDcxZTM3LTM2YjYtNGFmZS04ODU5LTJjNmYxMGMwYTMyM1wiLFwibWF0ZXJpYWxfaWRcIjpcIjYxNTMzNDE4OTE2XCIsXCJwb3NfaWRcIjpcIjI2OFwiLFwic2lkXCI6XCJmZDhmZjk5Ny0wMTJhLTQyMTAtYThlMi05NGZmZjA1NjdiMmJcIn0ifQ==&jd_pop=e2d71e37-36b6-4afe-8859-2c6f10c0a323&abt=0',
 )
 const preload = `file://${window.api.preload}`
-
-// const arr = [
-//   'https://item.jd.com/10155301055086.html?extension_id=eyJhZCI6IjI2OCIsImNoIjoiMiIsInNrdSI6IjEwMTU1MzAxMDU1MDg2IiwidHMiOiIxNzY0NTExOTUxIiwidW5pcWlkIjoie1wiY2xpY2tfaWRcIjpcImUyZDcxZTM3LTM2YjYtNGFmZS04ODU5LTJjNmYxMGMwYTMyM1wiLFwibWF0ZXJpYWxfaWRcIjpcIjYxNTMzNDE4OTE2XCIsXCJwb3NfaWRcIjpcIjI2OFwiLFwic2lkXCI6XCJmZDhmZjk5Ny0wMTJhLTQyMTAtYThlMi05NGZmZjA1NjdiMmJcIn0ifQ==&jd_pop=e2d71e37-36b6-4afe-8859-2c6f10c0a323&abt=0',
-// ]
+const buttonState = reactive({
+  back: false,
+  forward: false,
+})
 let webview: Electron.WebviewTag | null = null
 onMounted(() => {
   webview = document.querySelector('#browser-webview') as Electron.WebviewTag
   addMountedEvent()
-  window.electron.ipcRenderer.on('webview-data', (event, data) => {
-    console.log(event, data)
-  })
+  updateButtonState()
 })
 function toggleWebview() {
   removeEvent()
@@ -27,7 +25,7 @@ function toggleWebview() {
   webview!.src = toRaw(url.value)
   addEvent()
 }
-const themeOverrides = {
+const themeOverrides: GlobalThemeOverrides = {
   common: {
     fontWeightStrong: '600',
   },
@@ -35,6 +33,9 @@ const themeOverrides = {
 function addMountedEvent() {
   webview!.addEventListener('did-navigate', (event) => {
     url.value = event.url
+  })
+  window.electron.ipcRenderer.on('webview-data', (event, data) => {
+    console.log(event, data)
   })
 }
 function addEvent() {
@@ -52,9 +53,19 @@ function removeEvent() {}
 
 function onBack() {
   webview!.goBack()
+  updateButtonState()
 }
 function onForward() {
   webview!.goForward()
+  updateButtonState()
+}
+function onReload() {
+  webview!.reload()
+  updateButtonState()
+}
+function updateButtonState() {
+  buttonState.back = webview!.canGoBack()
+  buttonState.forward = webview!.canGoForward()
 }
 </script>
 
@@ -68,8 +79,11 @@ function onForward() {
       <Layout
         v-model:url="url"
         :webview="webview"
+        :can-back="buttonState.back"
+        :can-forward="buttonState.forward"
         @on-back="onBack"
         @on-forward="onForward"
+        @on-reload="onReload"
         @on-enter="toggleWebview"
       />
       <RouterView />
