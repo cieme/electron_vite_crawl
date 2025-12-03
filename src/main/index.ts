@@ -1,5 +1,5 @@
 // 导入 Electron 模块和工具
-import { app, shell, BrowserWindow, ipcMain, Menu, BrowserView } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -67,7 +67,7 @@ app.whenReady().then(() => {
 
   // IPC 通信测试
   ipcMain.on('ping', () => console.log('pong'))
-  ipcMain.on('webview-data', (event, data) => {
+  ipcMain.on('webview-data', (_event, data) => {
     console.log('主线程收到webview-data')
     mainWindow!.webContents.send('webview-data', data)
   })
