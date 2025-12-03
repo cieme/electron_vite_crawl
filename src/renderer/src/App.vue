@@ -33,8 +33,7 @@ const themeOverrides = {
   },
 }
 function addMountedEvent() {
-  webview!.addEventListener('did-frame-navigate', (event) => {
-    console.log(event)
+  webview!.addEventListener('did-navigate', (event) => {
     url.value = event.url
   })
 }
