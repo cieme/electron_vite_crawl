@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, toRaw } from 'vue'
+import { onMounted, reactive, ref, toRaw, provide } from 'vue'
 import { RouterView } from 'vue-router'
 import { zhCN, dateZhCN, type GlobalThemeOverrides } from 'naive-ui'
 import Layout from '@renderer/components/layout/index.vue'
@@ -13,16 +13,24 @@ const buttonState = reactive({
   back: false,
   forward: false,
 })
-let webview: Electron.WebviewTag | null = null
+const state: {
+  webview: Electron.WebviewTag | null
+} = {
+  webview: null,
+}
+provide('state', () => state)
+
 onMounted(() => {
-  webview = document.querySelector('#browser-webview') as Electron.WebviewTag
+  state.webview = document.querySelector(
+    '#browser-webview',
+  ) as Electron.WebviewTag
   addMountedEvent()
   updateButtonState()
 })
 function toggleWebview() {
   removeEvent()
   // webview!.preload = preload
-  webview!.src = toRaw(url.value)
+  state.webview!.src = toRaw(url.value)
   addEvent()
 }
 const themeOverrides: GlobalThemeOverrides = {
@@ -31,7 +39,7 @@ const themeOverrides: GlobalThemeOverrides = {
   },
 }
 function addMountedEvent() {
-  webview!.addEventListener('did-navigate', (event) => {
+  state.webview!.addEventListener('did-navigate', (event) => {
     url.value = event.url
   })
   window.electron.ipcRenderer.on('webview-data', (event, data) => {
@@ -39,10 +47,10 @@ function addMountedEvent() {
   })
 }
 function addEvent() {
-  webview!.addEventListener('dom-ready', () => {
+  state.webview!.addEventListener('dom-ready', () => {
     console.log('dom-ready')
-    webview!.openDevTools()
-    webview!.executeJavaScript(
+    // webview!.openDevTools()
+    state.webview!.executeJavaScript(
       `
     `,
       true,
@@ -52,20 +60,26 @@ function addEvent() {
 function removeEvent() {}
 
 function onBack() {
-  webview!.goBack()
+  state.webview!.goBack()
   updateButtonState()
 }
 function onForward() {
-  webview!.goForward()
+  state.webview!.goForward()
   updateButtonState()
 }
 function onReload() {
-  webview!.reload()
+  state.webview!.reload()
   updateButtonState()
 }
 function updateButtonState() {
-  buttonState.back = webview!.canGoBack()
-  buttonState.forward = webview!.canGoForward()
+  if (state.webview) {
+    buttonState.back = state.webview!.canGoBack()
+    buttonState.forward = state.webview!.canGoForward()
+  }
+}
+
+function clickLiaoCai() {
+  state!.webview!.src = `http://www.ccgp-liaoning.gov.cn/workspace`
 }
 </script>
 
@@ -78,7 +92,6 @@ function updateButtonState() {
     >
       <Layout
         v-model:url="url"
-        :webview="webview"
         :can-back="buttonState.back"
         :can-forward="buttonState.forward"
         @on-back="onBack"
@@ -86,6 +99,11 @@ function updateButtonState() {
         @on-reload="onReload"
         @on-enter="toggleWebview"
       />
+      <div class="flex items-center p-2">
+        <NButtonGroup>
+          <NButton @click="clickLiaoCai">辽采</NButton>
+        </NButtonGroup>
+      </div>
       <RouterView />
     </NConfigProvider>
     <webview
