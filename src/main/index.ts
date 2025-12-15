@@ -1,16 +1,28 @@
 // 导入 Electron 模块和工具
-import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
+import {
+  app,
+  shell,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  session,
+  BrowserView,
+} from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
 let mainWindow: BrowserWindow | null = null
+let browserView: BrowserView | null = null
 // 创建浏览器窗口函数
 function createWindow(): void {
+  const ses = session.fromPartition('persist:myapp', {
+    cache: true,
+  })
   // 创建浏览器窗口
   mainWindow = new BrowserWindow({
-    width: 900, // 窗口宽度
-    height: 670, // 窗口高度
+    width: 1100, // 窗口宽度
+    height: 800, // 窗口高度
     show: false, // 初始不显示
     autoHideMenuBar: false, // 自动隐藏菜单栏
     titleBarStyle: 'default', // default
@@ -24,11 +36,13 @@ function createWindow(): void {
       webviewTag: true, // 必须启用这个
       allowRunningInsecureContent: true, // 允许运行不安全内容
       nodeIntegration: true,
+      session: ses,
+      partition: 'persist:myapp',
       contextIsolation: false,
     },
   })
   mainWindow.webContents.openDevTools()
-  // createBrowserView(mainWindow)
+  createBrowserView(mainWindow)
   // 隐藏应用程序菜单
   Menu.setApplicationMenu(null)
   // createSecondWindow(mainWindow)
@@ -67,9 +81,17 @@ app.whenReady().then(() => {
 
   // IPC 通信测试
   ipcMain.on('ping', () => console.log('pong'))
-  ipcMain.on('webview-data', (_event, data) => {
-    console.log('主线程收到webview-data')
-    mainWindow!.webContents.send('webview-data', data)
+  ipcMain.on('onBack', (_event, data) => {
+    browserView!.webContents.goBack()
+  })
+  ipcMain.on('onForward', (_event, data) => {
+    browserView!.webContents.goForward()
+  })
+  ipcMain.on('onReload', (_event, data) => {
+    browserView!.webContents.reload()
+  })
+  ipcMain.on('toggleWebview', (_event, data) => {
+    browserView!.webContents.loadURL(data)
   })
 
   createWindow()
@@ -90,13 +112,30 @@ app.on('window-all-closed', () => {
   }
 })
 
-// function createBrowserView(mainWindow) {
-//   const view = new BrowserView()
-//   mainWindow.setBrowserView(view)
-//   view.setBounds({ x: 0, y: 50, width: 900, height: 670 - 50 })
-//   view.webContents.loadURL('https://cn.bing.com/')
-//   view.setAutoResize({ width: true, height: true })
-// }
+function createBrowserView(mainWindow) {
+  browserView = new BrowserView({})
+  mainWindow.setBrowserView(browserView)
+  browserView.setBounds({ x: 0, y: 100, width: 1100, height: 800 - 100 })
+  browserView.webContents.loadURL('http://www.ccgp-liaoning.gov.cn/workspace')
+  browserView.webContents.openDevTools()
+  const allowList = ['online.lnca.org.cn']
+  browserView.webContents.setWindowOpenHandler((details) => {
+    const allow = allowList.some((item) => details.url.includes(item))
+    if (allow) {
+      return { action: 'allow' } // 阻止在应用中打开新窗口
+    } else {
+      browserView!.webContents.loadURL(details.url)
+      return { action: 'deny' } // 阻止在应用中打开新窗口
+    }
+  })
+
+  // view.webContents.setWindowOpenHandler((details) => {
+  //   // shell.openExternal(details.url) // 在默认浏览器中打开外部链接
+  //   /* 修改view的地址 */
+  //   view.webContents.loadURL(details.url)
+  //   return { action: 'deny' } // 阻止在应用中打开新窗口
+  // })
+}
 // 在此文件中，您可以包含应用程序主进程的其余特定代码
 // 您也可以将它们放在单独的文件中并在此处引入
 // 在 main.js 或主进程中
