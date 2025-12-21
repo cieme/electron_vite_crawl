@@ -14,9 +14,11 @@ import icon from '../../resources/icon.png?asset'
 
 let mainWindow: BrowserWindow | null = null
 let browserView: BrowserView | null = null
+const partition = 'persist:myapp'
+
 // 创建浏览器窗口函数
 function createWindow(): void {
-  const ses = session.fromPartition('persist:myapp', {
+  const ses = session.fromPartition(partition, {
     cache: true,
   })
   // 创建浏览器窗口
@@ -32,17 +34,17 @@ function createWindow(): void {
       // 网页功能设置
       preload: join(__dirname, '../preload/index.js'), // 预加载脚本
       sandbox: false, // 关闭沙盒模式
-      webSecurity: false, // 关闭 web 安全限制
+      webSecurity: true, // 关闭 web 安全限制
       webviewTag: true, // 必须启用这个
-      allowRunningInsecureContent: true, // 允许运行不安全内容
-      nodeIntegration: true,
+      allowRunningInsecureContent: false, // 允许运行不安全内容
+      nodeIntegration: false,
       session: ses,
-      partition: 'persist:myapp',
+      partition,
       contextIsolation: false,
     },
   })
   mainWindow.webContents.openDevTools()
-  createBrowserView(mainWindow)
+  createBrowserView(mainWindow, ses)
   // 隐藏应用程序菜单
   Menu.setApplicationMenu(null)
   // createSecondWindow(mainWindow)
@@ -112,11 +114,31 @@ app.on('window-all-closed', () => {
   }
 })
 
-function createBrowserView(mainWindow) {
-  browserView = new BrowserView({})
+function createBrowserView(mainWindow: BrowserWindow, ses: Electron.Session) {
+  browserView = new BrowserView({
+    webPreferences: {
+      session: ses,
+      partition,
+      // 网页功能设置
+      preload: join(__dirname, '../preload/preload.js'), // 预加载脚本
+    },
+  })
   mainWindow.setBrowserView(browserView)
-  browserView.setBounds({ x: 0, y: 100, width: 1100, height: 800 - 100 })
-  browserView.webContents.loadURL('http://www.ccgp-liaoning.gov.cn/workspace')
+  const webContentHeight = mainWindow.contentView.getBounds().height
+  browserView.setBounds({
+    x: 0,
+    y: 100,
+    width: 1100,
+    height: webContentHeight - 100,
+  })
+  browserView.setAutoResize({
+    width: true,
+    height: true,
+  })
+  browserView.webContents.loadURL(
+    'https://chat.deepseek.com/a/chat/s/3e5dc112-9851-4f34-aab2-417bd9027db5',
+  )
+  // browserView.webContents.loadURL('http://www.ccgp-liaoning.gov.cn/workspace')
   browserView.webContents.openDevTools()
   const allowList = ['online.lnca.org.cn']
   browserView.webContents.setWindowOpenHandler((details) => {
