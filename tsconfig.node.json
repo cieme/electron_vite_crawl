@@ -3,6 +3,8 @@
   "include": ["electron.vite.config.*", "src/main/**/*", "src/preload/**/*","src/enum/**/*"],
   "compilerOptions": {
     "composite": true,
+    "noUnusedParameters": false, // 关闭未使用参数检查
+    "noUnusedLocals": false,      // 关闭未使用局部变量检查
     "types": ["electron-vite/node"]
   }
 }

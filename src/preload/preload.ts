@@ -29,6 +29,6 @@ function autoLoginForm() {
 function isLogin() {}
 
 ipcRenderer.removeAllListeners(ENUM_SUBMIT.SUBMIT_1)
-ipcRenderer.on(ENUM_SUBMIT.SUBMIT_1, (e, data) => {
-  console.log(e, data)
+ipcRenderer.on(ENUM_SUBMIT.SUBMIT_1, (e, data: string) => {
+  console.log(data)
 })
