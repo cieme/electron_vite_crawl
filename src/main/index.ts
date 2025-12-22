@@ -11,6 +11,7 @@ import {
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { ENUM_SUBMIT } from '../enum'
 
 let mainWindow: BrowserWindow | null = null
 let browserView: BrowserView | null = null
@@ -44,7 +45,7 @@ function createWindow(): void {
     },
   })
   mainWindow.webContents.openDevTools()
-  createBrowserView(mainWindow, ses)
+  // createBrowserView(mainWindow, ses)
   // 隐藏应用程序菜单
   Menu.setApplicationMenu(null)
   // createSecondWindow(mainWindow)
@@ -84,16 +85,16 @@ app.whenReady().then(() => {
   // IPC 通信测试
   ipcMain.on('ping', () => console.log('pong'))
   ipcMain.on('onBack', (_event, data) => {
-    browserView!.webContents.goBack()
+    // browserView!.webContents.goBack()
   })
   ipcMain.on('onForward', (_event, data) => {
-    browserView!.webContents.goForward()
+    // browserView!.webContents.goForward()
   })
   ipcMain.on('onReload', (_event, data) => {
-    browserView!.webContents.reload()
+    // browserView!.webContents.reload()
   })
   ipcMain.on('toggleWebview', (_event, data) => {
-    browserView!.webContents.loadURL(data)
+    // browserView!.webContents.loadURL(data)
   })
 
   createWindow()
@@ -114,50 +115,50 @@ app.on('window-all-closed', () => {
   }
 })
 
-function createBrowserView(mainWindow: BrowserWindow, ses: Electron.Session) {
-  browserView = new BrowserView({
-    webPreferences: {
-      session: ses,
-      partition,
-      // 网页功能设置
-      preload: join(__dirname, '../preload/preload.js'), // 预加载脚本
-    },
-  })
-  mainWindow.setBrowserView(browserView)
-  const webContentHeight = mainWindow.contentView.getBounds().height
-  browserView.setBounds({
-    x: 0,
-    y: 100,
-    width: 1100,
-    height: webContentHeight - 100,
-  })
-  browserView.setAutoResize({
-    width: true,
-    height: true,
-  })
-  browserView.webContents.loadURL(
-    'https://chat.deepseek.com/a/chat/s/3e5dc112-9851-4f34-aab2-417bd9027db5',
-  )
-  // browserView.webContents.loadURL('http://www.ccgp-liaoning.gov.cn/workspace')
-  browserView.webContents.openDevTools()
-  const allowList = ['online.lnca.org.cn']
-  browserView.webContents.setWindowOpenHandler((details) => {
-    const allow = allowList.some((item) => details.url.includes(item))
-    if (allow) {
-      return { action: 'allow' } // 阻止在应用中打开新窗口
-    } else {
-      browserView!.webContents.loadURL(details.url)
-      return { action: 'deny' } // 阻止在应用中打开新窗口
-    }
-  })
+// function createBrowserView(mainWindow: BrowserWindow, ses: Electron.Session) {
+//   browserView = new BrowserView({
+//     webPreferences: {
+//       session: ses,
+//       partition,
+//       // 网页功能设置
+//       preload: join(__dirname, '../preload/preload.js'), // 预加载脚本
+//     },
+//   })
+//   mainWindow.setBrowserView(browserView)
+//   const webContentHeight = mainWindow.contentView.getBounds().height
+//   browserView.setBounds({
+//     x: 0,
+//     y: 100,
+//     width: 1100,
+//     height: webContentHeight - 100,
+//   })
+//   browserView.setAutoResize({
+//     width: true,
+//     height: true,
+//   })
+//   browserView.webContents.loadURL(
+//     'https://chat.deepseek.com/a/chat/s/3e5dc112-9851-4f34-aab2-417bd9027db5',
+//   )
+//   // browserView.webContents.loadURL('http://www.ccgp-liaoning.gov.cn/workspace')
+//   browserView.webContents.openDevTools()
+//   const allowList = ['online.lnca.org.cn']
+//   browserView.webContents.setWindowOpenHandler((details) => {
+//     const allow = allowList.some((item) => details.url.includes(item))
+//     if (allow) {
+//       return { action: 'allow' } // 阻止在应用中打开新窗口
+//     } else {
+//       browserView!.webContents.loadURL(details.url)
+//       return { action: 'deny' } // 阻止在应用中打开新窗口
+//     }
+//   })
 
-  // view.webContents.setWindowOpenHandler((details) => {
-  //   // shell.openExternal(details.url) // 在默认浏览器中打开外部链接
-  //   /* 修改view的地址 */
-  //   view.webContents.loadURL(details.url)
-  //   return { action: 'deny' } // 阻止在应用中打开新窗口
-  // })
-}
+//   // view.webContents.setWindowOpenHandler((details) => {
+//   //   // shell.openExternal(details.url) // 在默认浏览器中打开外部链接
+//   //   /* 修改view的地址 */
+//   //   view.webContents.loadURL(details.url)
+//   //   return { action: 'deny' } // 阻止在应用中打开新窗口
+//   // })
+// }
 // 在此文件中，您可以包含应用程序主进程的其余特定代码
 // 您也可以将它们放在单独的文件中并在此处引入
 // 在 main.js 或主进程中

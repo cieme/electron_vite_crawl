@@ -26,6 +26,7 @@ export default defineConfig({
     resolve: {
       alias: {
         '@renderer': resolve('src/renderer/src'),
+        '@enum': resolve('src/enum'),
       },
     },
     plugins: [
@@ -40,7 +41,12 @@ export default defineConfig({
         imports: [
           'vue',
           {
-            'naive-ui': ['useDialog', 'useMessage', 'useNotification', 'useLoadingBar'],
+            'naive-ui': [
+              'useDialog',
+              'useMessage',
+              'useNotification',
+              'useLoadingBar',
+            ],
           },
         ],
       }),
